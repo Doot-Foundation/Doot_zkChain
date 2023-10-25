@@ -1,5 +1,5 @@
 import { TestingAppChain } from "@proto-kit/sdk";
-import { PrivateKey, PublicKey } from "snarkyjs";
+import { PrivateKey, PublicKey } from "o1js";
 import { Doot } from "./Doot";
 import { log } from "@proto-kit/common";
 

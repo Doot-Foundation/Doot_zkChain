@@ -6,7 +6,7 @@ import {
 } from "@proto-kit/module";
 
 import { State } from "@proto-kit/protocol";
-import { CircuitString, Field, PublicKey, Signature } from "snarkyjs";
+import { CircuitString, Field, PublicKey, Signature } from "o1js";
 
 interface DootConfig {}
 

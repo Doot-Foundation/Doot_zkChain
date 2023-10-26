@@ -8,10 +8,12 @@ import {
 import { State } from "@proto-kit/protocol";
 import { CircuitString, Field, PublicKey, Signature } from "o1js";
 
-interface DootConfig {}
+interface DootAssetConfig {
+  assetName: CircuitString;
+}
 
 @runtimeModule()
-export class Doot extends RuntimeModule<DootConfig> {
+export class DootAsset extends RuntimeModule<DootAssetConfig> {
   @state() public price = State.from<Field>(Field);
   @state() public decimals = State.from<Field>(Field);
   @state() public timestamp = State.from<Field>(Field);

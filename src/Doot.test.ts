@@ -1,29 +1,32 @@
 import { TestingAppChain } from "@proto-kit/sdk";
-import { PrivateKey, PublicKey } from "o1js";
-import { Doot } from "./Doot";
+import { CircuitString, PrivateKey, PublicKey } from "o1js";
+import { DootAsset } from "./DootAsset";
 import { log } from "@proto-kit/common";
 
 log.setLevel("ERROR");
 
 describe("Doot", () => {
-  it("Should initialize the oracle public key.", async () => {
+  it("Should initialize the contract for a specific asset.", async () => {
     const appChain = TestingAppChain.fromRuntime({
       modules: {
-        Doot,
+        DootAsset,
       },
       config: {
-        Doot: {},
+        DootAsset: {
+          assetName: CircuitString.fromString("Ethereum"),
+        },
       },
     });
 
     await appChain.start();
+    console.log(appChain);
 
     const alicePrivateKey = PrivateKey.random();
     const alice = alicePrivateKey.toPublicKey();
 
     appChain.setSigner(alicePrivateKey);
 
-    const doot = appChain.runtime.resolve("Doot");
+    const doot = appChain.runtime.resolve("DootAsset");
 
     const tx1 = appChain.transaction(alice, () => {
       doot.setOracle(alice);
@@ -34,7 +37,7 @@ describe("Doot", () => {
 
     await appChain.produceBlock();
 
-    const key = await appChain.query.runtime.Doot.oracleKey.get();
+    const key = await appChain.query.runtime.DootAsset.oracleKey.get();
     console.log(key);
   });
 });

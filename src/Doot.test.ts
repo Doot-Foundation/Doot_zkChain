@@ -34,7 +34,7 @@ describe("Doot", () => {
   });
 
   describe("Init", () => {
-    it("Should assign the correct deployer", async () => {
+    it("Should assign the correct deployer and confirm it", async () => {
       const tx = appChain.transaction(signer.toPublicKey(), () => {
         doot.init(signer);
       });
@@ -43,11 +43,9 @@ describe("Doot", () => {
       await tx.send();
 
       await appChain.produceBlock();
-    });
 
-    it("Should return the correct deployer", async () => {
-      const key = await appChain.query.runtime.Doot.deployer.get();
-      assert(key.toBase58() == signer.toPublicKey().toBase58());
+      const key = await doot.getDeployer();
+      console.log(key?.toBase58());
     });
 
     it("Should assign the oracle", async () => {

@@ -45,6 +45,10 @@ export class Doot extends RuntimeModule<DootConfig> {
     this.deployer.set(toSet);
   }
 
+  @runtimeMethod() public getDeployer(): PublicKey {
+    return this.deployer.get().value;
+  }
+
   @runtimeMethod() public setOracle(_address: PublicKey, _signer: PrivateKey) {
     const currentDeployer = this.deployer.get().value;
     assert(

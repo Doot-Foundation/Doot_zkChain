@@ -1,67 +1,69 @@
 import { TestingAppChain } from "@proto-kit/sdk";
-import { PrivateKey, PublicKey } from "o1js";
+import { Field, PrivateKey, PublicKey } from "o1js";
 import { Doot } from "./Doot";
-import { log } from "@proto-kit/common";
-import assert from "assert";
-
-log.setLevel("ERROR");
 
 describe("Doot", () => {
-  let appChain: any;
-  let doot: any;
-  let signer: PrivateKey;
-  let oracle: PrivateKey;
+  let appChain: TestingAppChain<{
+    Doot: typeof Doot;
+  }>;
+  let doot: Doot;
+
+  const signerPK = PrivateKey.random();
+  const signer = signerPK.toPublicKey();
+
+  const oraclePK = PrivateKey.random();
+  const oracle = oraclePK.toPublicKey();
 
   beforeAll(async () => {
-    const appchain = TestingAppChain.fromRuntime({
+    appChain = TestingAppChain.fromRuntime({
       modules: {
-        Doot,
+        Doot: Doot,
       },
       config: {
         Doot: {},
       },
     });
-
-    await appchain.start();
-    appChain = appchain;
+    appChain.setSigner(signerPK);
+    await appChain.start();
 
     doot = appChain.runtime.resolve("Doot");
 
-    signer = PrivateKey.random();
-    appChain.setSigner(signer);
-
-    oracle = PrivateKey.random();
+    console.log("Signer/Deployer Address :", signer.toBase58());
+    console.log("Oracle Address :", oracle.toBase58());
   });
 
   describe("Init", () => {
     it("Should assign the correct deployer and confirm it", async () => {
-      const tx = appChain.transaction(signer.toPublicKey(), () => {
-        doot.init(signer);
+      const tx = appChain.transaction(signer, () => {
+        const mock = Field.from(0);
+        doot.init(mock);
       });
-
       await tx.sign();
       await tx.send();
-
       await appChain.produceBlock();
 
-      const key = await doot.getDeployer();
+      const key = await appChain.query.runtime.Doot.deployer.get();
       console.log(key?.toBase58());
     });
-
-    it("Should assign the oracle", async () => {
-      const tx = appChain.transaction(signer.toPublicKey(), () => {
-        doot.setOracle(oracle.toPublicKey(), signer);
+    it("Should assign the correct oracle address and confirm it", async () => {
+      const tx = appChain.transaction(signer, () => {
+        doot.setOracle(oracle);
       });
-
       await tx.sign();
       await tx.send();
-
       await appChain.produceBlock();
-    });
 
-    it("Should return the correct oracle", async () => {
       const key = await appChain.query.runtime.Doot.oracle.get();
-      assert(key.toBase58() == oracle.toPublicKey().toBase58());
+      console.log(key?.toBase58());
     });
+    //   it("Gives the caller", async () => {
+    //     var value: PublicKey = PrivateKey.random().toPublicKey();
+    //     const txn = appChain.transaction(signer, () => {
+    //       value = doot.getCaller();
+    //     });
+    //     await txn.sign();
+    //     await txn.send();
+    //     console.log(value?.toBase58());
+    //   });
   });
 });

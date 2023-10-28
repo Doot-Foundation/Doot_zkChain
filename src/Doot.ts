@@ -5,8 +5,8 @@ import {
   runtimeMethod,
 } from "@proto-kit/module";
 
-import { State, StateMap } from "@proto-kit/protocol";
-import assert from "assert";
+import { State, StateMap, assert } from "@proto-kit/protocol";
+
 import {
   CircuitString,
   Field,
@@ -40,22 +40,22 @@ export class Doot extends RuntimeModule<DootConfig> {
   @state() public deployer = State.from<PublicKey>(PublicKey);
   @state() public oracle = State.from<PublicKey>(PublicKey);
 
-  @runtimeMethod() init(_signer: PrivateKey) {
-    const toSet = _signer.toPublicKey();
+  @runtimeMethod() public init(mock: Field) {
+    const toSet: PublicKey = this.transaction.sender;
     this.deployer.set(toSet);
   }
 
-  @runtimeMethod() public getDeployer(): PublicKey {
-    return this.deployer.get().value;
-  }
-
-  @runtimeMethod() public setOracle(_address: PublicKey, _signer: PrivateKey) {
-    const currentDeployer = this.deployer.get().value;
+  @runtimeMethod() public setOracle(_address: PublicKey) {
+    const currentDeployer = this.deployer.get();
     assert(
-      currentDeployer.toBase58() == _signer.toPublicKey().toBase58(),
+      currentDeployer.value.equals(this.transaction.sender),
       "Public Key Mismatch!"
     );
 
     this.oracle.set(_address);
+  }
+
+  @runtimeMethod() public getCaller(): PublicKey {
+    return this.transaction.sender;
   }
 }

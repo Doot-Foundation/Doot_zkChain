@@ -1,5 +1,5 @@
 import { TestingAppChain } from "@proto-kit/sdk";
-import { Field, PrivateKey, PublicKey } from "o1js";
+import { Field, PrivateKey, Provable } from "o1js";
 import { Doot } from "./Doot";
 
 describe("Doot", () => {
@@ -56,14 +56,5 @@ describe("Doot", () => {
       const key = await appChain.query.runtime.Doot.oracle.get();
       console.log(key?.toBase58());
     });
-    //   it("Gives the caller", async () => {
-    //     var value: PublicKey = PrivateKey.random().toPublicKey();
-    //     const txn = appChain.transaction(signer, () => {
-    //       value = doot.getCaller();
-    //     });
-    //     await txn.sign();
-    //     await txn.send();
-    //     console.log(value?.toBase58());
-    //   });
   });
 });

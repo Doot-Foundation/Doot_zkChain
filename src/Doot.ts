@@ -7,8 +7,6 @@ import {
 
 import { State, StateMap, assert } from "@proto-kit/protocol";
 
-import Client from "mina-signer";
-
 import {
   CircuitString,
   Field,
@@ -40,6 +38,7 @@ export class Doot extends RuntimeModule<DootConfig> {
     CircuitString,
     Asset
   );
+  @state() public oracle = State.from<PublicKey>(PublicKey);
   @state() public deployer = State.from<PublicKey>(PublicKey);
 
   // -------------- DEPLOYER METHODS
@@ -49,9 +48,16 @@ export class Doot extends RuntimeModule<DootConfig> {
     this.deployer.set(toSet);
   }
 
+  @runtimeMethod() public setOracle(_address: PublicKey) {
+    const caller = this.transaction.sender;
+    assert(caller.equals(this.deployer.get().value), "Public Key Mismatch.");
+
+    this.oracle.set(_address);
+  }
+
   @runtimeMethod() public initAsset(_name: CircuitString) {
     const caller = this.transaction.sender;
-    assert(caller.equals(this.deployer.get().value), "Public Key Mistmatch!");
+    assert(caller.equals(this.oracle.get().value), "Public Key Mistmatch!");
 
     const dummyField = Field.from(0);
 
@@ -134,7 +140,7 @@ export class Doot extends RuntimeModule<DootConfig> {
 
   @runtimeMethod() public updateAsset(_name: CircuitString, _info: Asset) {
     const caller = this.transaction.sender;
-    assert(caller.equals(this.deployer.get().value));
+    assert(caller.equals(this.oracle.get().value));
 
     const currentAsset = this.assetToInfo.get(_name).value;
     assert(currentAsset.active, "Asset Not Active!");

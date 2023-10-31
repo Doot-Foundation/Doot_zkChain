@@ -7,6 +7,8 @@ import {
 
 import { State, StateMap, assert } from "@proto-kit/protocol";
 
+import Client from "mina-signer";
+
 import {
   CircuitString,
   Field,
@@ -15,11 +17,12 @@ import {
   Signature,
   Provable,
   Bool,
+  Scalar,
 } from "o1js";
 
 interface DootConfig {}
 
-class Asset extends Struct({
+export class Asset extends Struct({
   price: Field,
   decimal: Field,
   lastUpdated: Field,
@@ -38,11 +41,10 @@ export class Doot extends RuntimeModule<DootConfig> {
     Asset
   );
   @state() public deployer = State.from<PublicKey>(PublicKey);
-  @state() public oracle = State.from<PublicKey>(PublicKey);
 
   // -------------- DEPLOYER METHODS
 
-  @runtimeMethod() public init(mock: Field) {
+  @runtimeMethod() public init(_mock: Field) {
     const toSet = this.transaction.sender;
     this.deployer.set(toSet);
   }
@@ -51,9 +53,21 @@ export class Doot extends RuntimeModule<DootConfig> {
     const caller = this.transaction.sender;
     assert(caller.equals(this.deployer.get().value), "Public Key Mistmatch!");
 
-    const dummySignature = Signature.fromBase58("");
-    const dummyString = CircuitString.fromString("");
     const dummyField = Field.from(0);
+
+    const r: Field = Field.from(
+      "3453242529435300249475913149188572083347436792222851800488732972770575089231"
+    );
+    const s: Scalar = Scalar.from(
+      "12534608709379221111311551915926877686194576342348043105277077603381034183837"
+    );
+
+    const dummySignature = Signature.fromObject({
+      r,
+      s,
+    });
+
+    const dummyString = CircuitString.fromString("");
 
     const toSet: Asset = new Asset({
       price: dummyField,
@@ -118,39 +132,22 @@ export class Doot extends RuntimeModule<DootConfig> {
     this.assetToInfo.set(_name, toSet);
   }
 
-  @runtimeMethod() public setOracle(_address: PublicKey) {
+  @runtimeMethod() public updateAsset(_name: CircuitString, _info: Asset) {
     const caller = this.transaction.sender;
-    assert(caller.equals(this.deployer.get().value), "Public Key Mismatch!");
+    assert(caller.equals(this.deployer.get().value));
 
-    this.oracle.set(_address);
+    const currentAsset = this.assetToInfo.get(_name).value;
+    assert(currentAsset.active, "Asset Not Active!");
+
+    // currentAsset.price = info.price;
+    // currentAsset.decimal = info.decimal;
+    // currentAsset.lastUpdated = info.lastUpdated;
+    // currentAsset.signature = info.signature;
+    // currentAsset.urls = info.urls;
+    // currentAsset.prices = info.prices;
+    // currentAsset.signatures = info.signatures;
+    // currentAsset.tlsnProofs = info.tlsnProofs;
+
+    this.assetToInfo.set(_name, _info);
   }
-
-  // -------------- ORACLE METHODS
-
-  // @runtimeMethod() public updateAsset(
-  //   name: CircuitString,
-  //   price: Field,
-  //   decimal: Field,
-  //   lastUpdated: Field,
-  //   signature: Signature,
-  //   urls: ProvableExtendedPure<CircuitString, 11>,
-  //   signatures: ProvableExtendedPure<Signature, 11>,
-  //   prices: ProvableExtendedPure<Field, 11>,
-  //   tlsnProofs: ProvableExtendedPure<CircuitString, 11>
-  // ) {
-  //   const caller = this.transaction.sender;
-  //   assert(caller.equals(this.oracle.get().value));
-
-  //   const currentAsset = this.assetToInfo.get(name).value;
-  //   assert(currentAsset.active, "Asset Not Active!");
-
-  //   currentAsset.price = price;
-  //   currentAsset.decimal = decimal;
-  //   currentAsset.lastUpdated = lastUpdated;
-  //   currentAsset.signature = signature;
-  //   currentAsset.urls = urls;
-  //   currentAsset.signatures = signatures;
-  //   currentAsset.prices = prices;
-  //   currentAsset.tlsnProofs = tlsnProofs;
-  // }
 }

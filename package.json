@@ -12,9 +12,10 @@
   "dependencies": {
     "@proto-kit/common": "*",
     "@proto-kit/module": "*",
-    "@proto-kit/sdk": "*",
     "@proto-kit/protocol": "*",
+    "@proto-kit/sdk": "*",
     "@proto-kit/sequencer": "*",
+    "mina-signer": "^2.1.1",
     "o1js": "0.13.1",
     "tsyringe": "^4.8.0"
   },
@@ -34,8 +35,8 @@
     "stream-browserify": "^3.0.0",
     "string_decoder": "^1.3.0",
     "ts-jest": "^29.1.1",
+    "typescript": "4.9.4",
     "url": "^0.11.1",
-    "util": "^0.12.5",
-    "typescript": "4.9.4"
+    "util": "^0.12.5"
   }
 }

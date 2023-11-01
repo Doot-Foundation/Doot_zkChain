@@ -145,15 +145,6 @@ export class Doot extends RuntimeModule<DootConfig> {
     const currentAsset = this.assetToInfo.get(_name).value;
     assert(currentAsset.active, "Asset Not Active!");
 
-    // currentAsset.price = info.price;
-    // currentAsset.decimal = info.decimal;
-    // currentAsset.lastUpdated = info.lastUpdated;
-    // currentAsset.signature = info.signature;
-    // currentAsset.urls = info.urls;
-    // currentAsset.prices = info.prices;
-    // currentAsset.signatures = info.signatures;
-    // currentAsset.tlsnProofs = info.tlsnProofs;
-
     this.assetToInfo.set(_name, _info);
   }
 }

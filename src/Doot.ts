@@ -27,8 +27,8 @@ export class Asset extends Struct({
   signature: Signature,
   active: Bool,
   urls: Provable.Array(CircuitString, 11),
-  signatures: Provable.Array(Signature, 11),
   prices: Provable.Array(Field, 11),
+  signatures: Provable.Array(Signature, 11),
   tlsnProofs: Provable.Array(CircuitString, 11),
 }) {}
 

@@ -15,6 +15,7 @@
     "@proto-kit/protocol": "*",
     "@proto-kit/sdk": "*",
     "@proto-kit/sequencer": "*",
+    "dotenv": "^16.3.1",
     "mina-signer": "^2.1.1",
     "o1js": "0.13.1",
     "tsyringe": "^4.8.0"

@@ -1,10 +1,3 @@
-# Protokit: Starter kit
-
-Starter kit for developing privacy enabled application chains. (zkChains)
-
-The default example contains a simple zkChain with one runtime module - `src/Balances.ts`.
-Integration tests for the Balances module can be found in `src/Balances.test.ts`.
-
 **Quick start:**
 
 ```zsh
@@ -14,3 +7,9 @@ npm install
 npm run test:watch
 ```
 
+# TODO
+
+Assign a way to automatically check for oracle key access at the end of each day as a zkProof.
+If failed a new key will be requested from the signer.
+
+Create a zkProof using a PrivateKey, and use the zkProof to initiate txns later for the oracle.

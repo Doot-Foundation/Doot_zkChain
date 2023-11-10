@@ -30,6 +30,7 @@ export class Asset extends Struct({
   prices: Provable.Array(Field, 11),
   signatures: Provable.Array(Signature, 11),
   tlsnProofs: Provable.Array(CircuitString, 11),
+  L1Address: PublicKey,
 }) {}
 
 @runtimeModule()
@@ -74,6 +75,7 @@ export class Doot extends RuntimeModule<DootConfig> {
     });
 
     const dummyString = CircuitString.fromString("");
+    const dummyAddress = PublicKey.empty();
 
     const toSet: Asset = new Asset({
       price: dummyField,
@@ -133,6 +135,7 @@ export class Doot extends RuntimeModule<DootConfig> {
         dummyString,
         dummyString,
       ],
+      L1Address: dummyAddress,
     });
 
     this.assetToInfo.set(_name, toSet);

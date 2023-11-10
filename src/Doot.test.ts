@@ -138,6 +138,7 @@ describe("Doot", () => {
         ])
       );
       const tlsnProofs = urlsArray.map((x) => CircuitString.fromString(x));
+      const L1Address = PublicKey.empty();
 
       const toSet: Asset = new Asset({
         price: price,
@@ -149,6 +150,7 @@ describe("Doot", () => {
         prices: prices,
         signatures: signatures,
         tlsnProofs: tlsnProofs,
+        L1Address: L1Address,
       });
 
       const tx = appChain.transaction(oracle, () => {

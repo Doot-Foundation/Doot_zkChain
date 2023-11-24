@@ -16,6 +16,8 @@ import {
   Provable,
   Bool,
   Scalar,
+  MerkleMapWitness,
+  MerkleMap,
 } from "o1js";
 
 interface DootConfig {}
@@ -30,7 +32,7 @@ export class Asset extends Struct({
   prices: Provable.Array(Field, 11),
   signatures: Provable.Array(Signature, 11),
   tlsnProofs: Provable.Array(CircuitString, 11),
-  L1Address: PublicKey,
+  l1MerkleMapWitness: MerkleMapWitness,
 }) {}
 
 @runtimeModule()
@@ -41,6 +43,7 @@ export class Doot extends RuntimeModule<DootConfig> {
   );
   @state() public oracle = State.from<PublicKey>(PublicKey);
   @state() public deployer = State.from<PublicKey>(PublicKey);
+  @state() public l1Deployment = State.from<PublicKey>(PublicKey);
 
   // -------------- DEPLOYER METHODS
 
@@ -54,6 +57,13 @@ export class Doot extends RuntimeModule<DootConfig> {
     assert(caller.equals(this.deployer.get().value), "Public Key Mismatch.");
 
     this.oracle.set(_address);
+  }
+
+  @runtimeMethod() public setL1Deployment(_address: PublicKey) {
+    const caller = this.transaction.sender;
+    assert(caller.equals(this.deployer.get().value), "Public Key Mismatch.");
+
+    this.l1Deployment.set(_address);
   }
 
   @runtimeMethod() public initAsset(_name: CircuitString) {
@@ -75,7 +85,10 @@ export class Doot extends RuntimeModule<DootConfig> {
     });
 
     const dummyString = CircuitString.fromString("");
-    const dummyAddress = PublicKey.empty();
+
+    const dummyMap = new MerkleMap();
+    dummyMap.set(Field.from(1), Field.from(1));
+    const dummyWitness = dummyMap.getWitness(Field.from(1));
 
     const toSet: Asset = new Asset({
       price: dummyField,
@@ -135,7 +148,7 @@ export class Doot extends RuntimeModule<DootConfig> {
         dummyString,
         dummyString,
       ],
-      L1Address: dummyAddress,
+      l1MerkleMapWitness: dummyWitness,
     });
 
     this.assetToInfo.set(_name, toSet);

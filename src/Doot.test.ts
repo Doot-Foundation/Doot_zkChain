@@ -5,7 +5,9 @@ import {
   PrivateKey,
   PublicKey,
   Signature,
+  MerkleMapWitness,
   Bool,
+  MerkleMap,
 } from "o1js";
 import { Doot, Asset } from "./Doot";
 
@@ -20,6 +22,9 @@ describe("Doot", () => {
 
   const oraclePK = PrivateKey.random();
   const oracle = oraclePK.toPublicKey();
+
+  const l1PK = PrivateKey.random();
+  const l1 = l1PK.toPublicKey();
 
   beforeAll(async () => {
     appChain = TestingAppChain.fromRuntime({
@@ -37,6 +42,7 @@ describe("Doot", () => {
 
     console.log("Signer/Deployer Address :", signer.toBase58());
     console.log("Oracle Address :", oracle.toBase58());
+    console.log("L1 Deployment :", l1.toBase58());
   });
 
   describe("Init", () => {
@@ -66,6 +72,19 @@ describe("Doot", () => {
         await appChain.query.runtime.Doot.oracle.get();
 
       expect(key?.toBase58()).toBe(oracle.toBase58());
+    });
+    it("Should assing the correct l1 deployment and confirm it", async () => {
+      const tx = appChain.transaction(signer, () => {
+        doot.setL1Deployment(l1);
+      });
+      await tx.sign();
+      await tx.send();
+      await appChain.produceBlock();
+
+      const key: PublicKey | undefined =
+        await appChain.query.runtime.Doot.l1Deployment.get();
+
+      expect(key?.toBase58()).toBe(l1.toBase58());
     });
   });
 
@@ -138,7 +157,10 @@ describe("Doot", () => {
         ])
       );
       const tlsnProofs = urlsArray.map((x) => CircuitString.fromString(x));
-      const L1Address = PublicKey.empty();
+
+      const dummyMap = new MerkleMap();
+      dummyMap.set(Field.from(1), price);
+      const witness = dummyMap.getWitness(Field.from(1));
 
       const toSet: Asset = new Asset({
         price: price,
@@ -150,7 +172,7 @@ describe("Doot", () => {
         prices: prices,
         signatures: signatures,
         tlsnProofs: tlsnProofs,
-        L1Address: L1Address,
+        l1MerkleMapWitness: witness,
       });
 
       const tx = appChain.transaction(oracle, () => {
